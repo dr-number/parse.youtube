@@ -1,0 +1,3 @@
+<link itemprop="url" href="ссылка на видео-ролик"/>
+<meta itemprop="name" content="Название видео"/>
+<meta itemprop="duration" content="T6M30S"/>
