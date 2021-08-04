@@ -14,7 +14,7 @@ function get_youtube_title($ref) {
 
 
 
-function YoutubeVideoInfo($video_id, $key) {
+function YoutubeVideoInfo($video_id, $key, $url_from) {
 
     $url = 'https://www.googleapis.com/youtube/v3/videos?id='.$video_id.'&key='.$key.'&part=snippet,contentDetails';
     $ch = curl_init();
@@ -37,21 +37,29 @@ function YoutubeVideoInfo($video_id, $key) {
     $duration = $duration;
     $title = $title;
 
-    echo '<link itemprop="url" href="ссылка на видео-ролик"/>';
-    echo '<meta itemprop="name" content="'.$title.'"/>';
-    echo '<meta itemprop="duration" content="'.$duration.'"/>';
+
+    $str = '<link itemprop="url" href="'.$url_from.'"/><meta itemprop="name" content="'.$title.'"/><meta itemprop="duration" content="'.$duration.'"/>';
+    echo $str;
+    return $str;
 }
 
 
+$fp = fopen("output.html", "a"); // Открываем файл в режиме записи
+
 if (($fp = fopen("inlinks.csv", "r")) !== FALSE) {
+
     $count = 0;
 
     while (($data = fgetcsv($fp, 0, ";")) !== FALSE) {
         if($count != 0) {
             $str = $data[0];
             $array = explode(",", $str);
-            $to = str_replace("\"", "", $array[2]);
 
+            $url = str_replace("\"", "", $array[2]);
+            //$url = strtok($url,'?');
+            //$url = strtok($url,'/');
+
+            $to = $url;
             $to = str_replace("https://www.youtube.com/embed/", "", $to);
             $to = str_replace("http://www.youtube.com/embed/", "", $to);
             $to = str_replace("https://img.youtube.com/vi/", "", $to);
@@ -60,20 +68,27 @@ if (($fp = fopen("inlinks.csv", "r")) !== FALSE) {
             $to = strtok($to,'/');
 
             $video_id = $to;
-            echo $video_id;
-            echo '<br>';
+
+            //sleep(5);
+            $w = YoutubeVideoInfo($video_id, "AIzaSyBLvS0_qXqYfuWo360syVrUJiaolS1oSA0", $url);
+            fwrite($fp, $w); // Запись в файл
+
+            //echo $video_id;
+            //echo '<br>';
         }
         ++$count;
     }
     fclose($fp);
     //print_r($list);
-
-    echo '</br> count:'.($count-1);
 }
 
+fclose($fp); //Закрытие файла
+
+
+echo "ok";
 
 //passing youtube videoId to function
-YoutubeVideoInfo('0ncKjicVBWk', "AIzaSyBLvS0_qXqYfuWo360syVrUJiaolS1oSA0");
+//YoutubeVideoInfo('0ncKjicVBWk', "AIzaSyBLvS0_qXqYfuWo360syVrUJiaolS1oSA0");
 
 
 function getDuration($url){
